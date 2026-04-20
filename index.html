@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 即時語音轉文字</title>
+    <title>AI 即時語音轉文字 (Cantonese.ai)</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Lucide Icons -->
@@ -35,28 +35,29 @@
                 <i data-lucide="mic" id="header-icon-mic"></i>
                 <i data-lucide="mic-off" id="header-icon-mic-off" class="hidden"></i>
             </div>
-            <h1 class="text-xl font-bold tracking-wider">AI 即時語音轉文字</h1>
+            <h1 class="text-xl font-bold tracking-wider hidden sm:block">AI 即時語音轉文字</h1>
+            <span class="bg-indigo-500/20 text-indigo-400 text-xs px-2 py-1 rounded-md border border-indigo-500/30 font-medium">Cantonese.ai 官方端點</span>
         </div>
         
-        <div class="flex items-center gap-2 bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-700">
-            <i data-lucide="settings" class="text-gray-400 w-4 h-4"></i>
-            <select id="language-select" class="bg-gray-900 text-sm text-gray-200 outline-none cursor-pointer disabled:opacity-50">
-                <option value="zh-TW" class="bg-gray-900">繁體中文 (台灣)</option>
-                <option value="zh-HK" class="bg-gray-900">繁體中文 (香港)</option>
-                <option value="zh-CN" class="bg-gray-900">簡體中文 (中國)</option>
-                <option value="en-US" class="bg-gray-900">English (US)</option>
-                <option value="ja-JP" class="bg-gray-900">日本語 (日本)</option>
-            </select>
+        <div class="flex items-center gap-4">
+            <!-- 港台用語轉換開關 -->
+            <label class="flex items-center cursor-pointer gap-2" title="開啟後，會自動將香港用語轉為台灣用語">
+                <span class="text-sm text-gray-300 hidden sm:inline">港→台轉換</span>
+                <span class="text-sm text-gray-300 sm:hidden">港→台</span>
+                <div class="relative flex items-center">
+                    <input type="checkbox" id="toggle-hk-tw" class="sr-only peer" checked>
+                    <div class="w-9 h-5 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 peer-checked:after:bg-white after:border-gray-400 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                </div>
+            </label>
         </div>
     </header>
 
     <!-- 系統音訊模式提示 -->
-    <div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 m-6 mb-0 rounded-r-lg flex flex-col sm:flex-row items-start gap-3 shadow-sm">
-        <i data-lucide="info" class="text-blue-400 shrink-0 mt-0.5 w-5 h-5"></i>
-        <div class="text-blue-300 text-sm leading-relaxed flex-1">
-            <p class="font-bold mb-1 text-blue-200">【重要提示】如何讓 AI 聽見喇叭播出的聲音？</p>
-            <p>下方的裝置選單可讓您<strong>分開測試</strong>麥克風與喇叭的音量跳動。但受限於瀏覽器安全機制，AI 語音轉文字<strong>永遠只能聽取系統的「預設錄音裝置」</strong>。</p>
-            <p class="mt-1 text-blue-400/90">若要成功辨識電腦聲音，請至 Windows 音效設定將<strong>「立體聲混音 (Stereo Mix)」</strong>設為預設；Mac 用戶請安裝並使用 BlackHole 虛擬音效卡。</p>
+    <div class="bg-indigo-500/10 border-l-4 border-indigo-500 p-4 m-6 mb-0 rounded-r-lg flex flex-col sm:flex-row items-start gap-3 shadow-sm">
+        <i data-lucide="zap" class="text-indigo-400 shrink-0 mt-0.5 w-5 h-5"></i>
+        <div class="text-indigo-300 text-sm leading-relaxed flex-1">
+            <p class="font-bold mb-1 text-indigo-200">【引擎升級】已完全遵循 Cantonese.ai 官方文件實作</p>
+            <p>只要在下方選單選擇「VoiceMeeter Output」或您的系統麥克風，AI 就會<strong>完全同步</strong>聽取該裝置的聲音。程式會在背景自動將音訊轉碼為 WAV 格式，確保傳輸精準無誤！</p>
         </div>
     </div>
 
@@ -78,10 +79,10 @@
                 </p>
             </div>
 
-            <!-- 文字內容 -->
+            <!-- 文字內容：統一顯示為正式文字 -->
             <div class="text-2xl md:text-3xl leading-relaxed md:leading-loose tracking-wide break-words pb-10">
                 <span id="final-transcript" class="text-gray-100 transition-colors duration-200"></span>
-                <span id="interim-transcript" class="text-gray-400 transition-colors duration-200 ml-1"></span>
+                <span id="interim-transcript" class="text-indigo-400/70 text-xl font-medium transition-colors duration-200 ml-1"></span>
                 <span id="cursor-anim" class="hidden inline-block w-2 h-6 md:h-8 bg-blue-500 ml-2 animate-pulse align-middle rounded-full"></span>
                 <div id="transcript-end"></div>
             </div>
@@ -95,7 +96,7 @@
                 <div class="flex items-center gap-2 bg-gray-900 px-3 py-2.5 rounded-xl border border-gray-700 w-full sm:w-auto relative group">
                     <i data-lucide="volume-2" class="text-gray-400 w-4 h-4"></i>
                     <select id="device-select" class="bg-gray-900 text-sm text-gray-200 outline-none cursor-pointer w-full max-w-[180px] truncate disabled:opacity-50 appearance-none pr-4">
-                        <optgroup label="實體裝置 (麥克風等)" id="device-list" class="bg-gray-900">
+                        <optgroup label="實體與虛擬裝置" id="device-list" class="bg-gray-900">
                             <option value="" class="bg-gray-900">讀取裝置中...</option>
                         </optgroup>
                         <optgroup label="獨立系統音效測試" class="bg-gray-900">
@@ -144,7 +145,7 @@
 
     <!-- 提示訊息 (Toast) -->
     <div id="toast" class="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-gray-800 border border-gray-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
-        <i data-lucide="check" class="text-green-400 w-4 h-4"></i>
+        <i data-lucide="check" id="toast-icon" class="text-green-400 w-4 h-4"></i>
         <span id="toast-message"></span>
     </div>
 
@@ -153,9 +154,93 @@
         // 初始化 Lucide Icons
         lucide.createIcons();
 
+        // --- Cantonese.ai 專屬 API 設定 ---
+        const CANTONESE_API_KEY = "sk-4zz8JY9pqw7fm9320qbaYpuijygevn0a";
+
+        // --- 港台用語對照字典 ---
+        const hkToTwMap = {
+            '的士': '計程車', '巴士': '公車', '小巴': '小型公車', '地鐵': '捷運', '輕鐵': '輕軌',
+            '雪糕': '冰淇淋', '朱古力': '巧克力', '士多啤梨': '草莓', '雲呢拿': '香草', '班戟': '鬆餅',
+            '多士': '吐司', '三文治': '三明治', '沙律': '沙拉', '啫喱': '果凍', '忌廉': '鮮奶油',
+            '芝士': '起司', '牛油果': '酪梨', '奇異果': '奇異果', '薯仔': '馬鈴薯', '番茄': '番茄', 
+            '青瓜': '小黃瓜', '粟米': '玉米', '啟動': '啟用', '程式': '程式', '軟件': '軟體',
+            '硬件': '硬體', '滑鼠': '滑鼠', '鍵盤': '鍵盤', '熒幕': '螢幕', '打印機': '印表機',
+            '複印': '影印', '數碼': '數位', '網絡': '網路', '連結': '連結', '項目': '專案',
+            '質素': '品質', '查詢': '查詢', '戶口': '帳戶', '由於': '因為', '雖然': '雖然', 
+            '但是': '但是', '或者': '或者', '以及': '以及', '而且': '而且', '竟然': '竟然', 
+            '究竟': '究竟', '差不多': '差不多', '大概': '大概', '可能': '可能', '一定': '一定', 
+            '其實': '其實', '根本': '根本', '例如': '例如', '比如': '比如', '好似': '好像',
+            '係': '是', '唔': '不', '嘅': '的', '喺': '在', '嗰': '那', '呢': '這',
+            '咁': '這樣/那麼', '點': '怎樣/怎麼', '乜': '什麼', '嘢': '東西', '幾多': '多少',
+            '邊度': '哪裡', '邊個': '誰', '幾時': '什麼時候', '點解': '為什麼', '返工': '上班',
+            '放工': '下班', '傾偈': '聊天', '屋企': '家裡', '食飯': '吃飯', '飲水': '喝水',
+            '睇戲': '看電影', '行街': '逛街', '買嘢': '買東西', '畀錢': '付錢', '搵錢': '賺錢',
+            '晒': '完/光', '咗': '了', '緊': '正在', '住': '著', '埋': '連同',
+            '定': '還是', '先': '才', '至': '才', '都': '都', '仲': '還',
+            '又': '又', '再': '再', '話': '說', '講': '講', '問': '問', 
+            '答': '回答', '諗': '想', '知': '知道', '識': '懂得', '明': '明白',
+            '覺': '覺得', '得': '可以', '唔得': '不行', '有冇': '有沒有', '係咪': '是不是',
+            '好唔好': '好不好', '得唔得': '行不行', '因為': '因為', '所以': '所以', '因此': '因此', 
+            '為咗': '為了', '關於': '關於', '對於': '對於', '至於': '至於', '根據': '根據', 
+            '按照': '按照', '通過': '透過', '經過': '經過', '隨著': '隨著', '自從': '自從', 
+            '向': '往', '往': '往', '到': '到', '在': '在', '於': '於', 
+            '跟': '跟', '同': '和', '和': '和', '與': '與', '及': '及', 
+            '或': '或', '無': '沒有', '沒有': '沒有', '別': '不要', '不要': '不要', 
+            '請': '請', '謝謝': '謝謝', '對不起': '對不起', '沒關係': '沒關係', '再見': '再見', 
+            '早晨': '早安', '午安': '午安', '晚安': '晚安', '你好': '你好', '大家好': '大家好', 
+            '醫生': '醫師', '護士': '護理師', '警察': '警察', '司機': '駕駛', '售貨員': '店員',
+            '服務員': '服務生', '隔籬': '隔壁', '這裡': '這裡', '那裡': '那裡', '哪裡': '哪裡', 
+            '這個': '這個', '那個': '那個', '哪個': '哪個', '這些': '這些', '那些': '那些', 
+            '哪些': '哪些', '我': '我', '你': '你', '他': '他', '她': '她', '它': '它', 
+            '我們': '我們', '你們': '你們', '他們': '他們', '她們': '她們', '它們': '它們', 
+            '自己': '自己', '大家': '大家', '誰': '誰', '什麼': '什麼', '怎麼': '怎麼', 
+            '怎樣': '怎樣', '哪兒': '哪兒', '哪裡': '哪裡', '什麼時候': '什麼時候', '為什麼': '為什麼', 
+            '因何': '為何', '如何': '如何', '多少': '多少', '只': '隻', '支': '支', 
+            '條': '條', '張': '張', '件': '件', '本': '本', '位': '位', '次': '次', 
+            '時': '點', '點': '點', '分': '分', '秒': '秒', '字': '字',
+            '早上': '早上', '上午': '上午', '中午': '中午', '下午': '下午', '晚上': '晚上', 
+            '夜晩': '夜晚', '半夜': '半夜', '凌晨': '凌晨', '現在': '現在', '剛才': '剛才', 
+            '過去': '過去', '將來': '將來', '未來': '未來', '以前': '以前', '以後': '以後', 
+            '之前': '之前', '之後': '之後', '同時': '同時', '有時': '有時', '經常': '經常', 
+            '常常': '常常', '總是': '總是', '永遠': '永遠', '曾經': '曾經', '已經': '已經', 
+            '正在': '正在', '將要': '將要', '快要': '快要', '立刻': '立刻', '馬上': '馬上', 
+            '趕快': '趕快', '慢慢': '慢慢', '漸漸': '漸漸', '終於': '終於', '到底': '到底', 
+            '結果': '結果', '突然': '突然', '忽然': '忽然', '竟然': '竟然', '果然': '果然', 
+            '當然': '當然', '難道': '難道', '大約': '大約', '大概': '大概', '恐怕': '恐怕', 
+            '似乎': '似乎', '好像': '好像', '幾乎': '幾乎', '簡直': '簡直', '根本': '根本', 
+            '特地': '特地', '故意': '故意', '只好': '只好', '不得不': '不得不', '必須': '必須', 
+            '一定': '一定', '肯定': '肯定', '也許': '也許', '可能': '可能', '或者': '或者', 
+            '很': '很', '非常': '非常', '十分': '十分', '極': '極', '最': '最', 
+            '更': '更', '比較': '比較', '稍微': '稍微', '有點': '有點', '太': '太', 
+            '多麼': '多麼', '好': '好', '壞': '壞', '大': '大', '小': '小', 
+            '多': '多', '少': '少', '高': '高', '低': '低', '長': '長', '短': '短', 
+            '粗': '粗', '細': '細', '快': '快', '慢': '慢', '遠': '遠', '近': '近', 
+            '新': '新', '舊': '舊', '難': '難', '易': '容易', '容易': '容易', 
+            '貴': '貴', '平': '便宜', '便宜': '便宜', '真': '真', '假': '假', 
+            '對': '對', '錯': '錯', '靚': '漂亮', '漂亮': '漂亮', '美麗': '美麗', 
+            '醜': '醜', '乾淨': '乾淨', '骯髒': '骯髒', '污糟': '髒', '整齊': '整齊', 
+            '凌亂': '凌亂', '亂': '亂', '安全': '安全', '危險': '危險', '高興': '高興', 
+            '快樂': '快樂', '愉快': '愉快', '興奮': '興奮', '傷心': '傷心', '難過': '難過', 
+            '痛苦': '痛苦', '生氣': '生氣', '憤怒': '憤怒', '擔心': '擔心', '害怕': '害怕', 
+            '恐懼': '恐懼', '驚訝': '驚訝', '奇怪': '奇怪', '有趣': '有趣', '無聊': '無聊', 
+            '悶': '無聊', '煩': '煩', '累': '累', '攰': '累', '忙': '忙', '閒': '閒', 
+            '飽': '飽', '餓': '餓', '渴': '渴', '頸渴': '口渴', '舒服': '舒服', 
+            '健康': '健康', '生病': '生病', '病咗': '生病了', '痛': '痛', '癢': '癢', 
+            '痕': '癢', '酸': '酸', '甜': '甜', '苦': '苦', '辣': '辣', '鹹': '鹹', 
+            '淡': '淡', '香': '香', '臭': '臭', '紅': '紅', '黃': '黃', '藍': '藍', 
+            '綠': '綠', '白': '白', '黑': '黑', '灰': '灰', '紫': '紫', '橙': '橘', 
+            '啡': '棕色', '金': '金', '銀': '銀', '顏色': '顏色', '形狀': '形狀', 
+            '鍾意': '喜歡', '憎': '討厭', '肯': '願意', '驚': '怕', '見': '看見', 
+            '整': '弄', '攞': '拿', '擺': '放', '閂': '關', '企': '站', 
+            '行': '走', '著': '穿', '除': '脫', '抹': '擦', '痴': '黏', 
+            '似': '像', '喊': '哭', '唔記得': '忘記了', '彈': '批評', '做嘢': '做事', 
+            '瞓覺': '睡覺', '起身': '起床', '沖涼': '洗澡', '食煙': '抽煙', '飲酒': '喝酒', 
+            '鍛煉': '鍛鍊', '質量': '品質', '水平': '水準'
+        };
+
         // DOM 元素參考
         const ui = {
-            languageSelect: document.getElementById('language-select'),
+            toggleHkTw: document.getElementById('toggle-hk-tw'),
             deviceSelect: document.getElementById('device-select'),
             deviceList: document.getElementById('device-list'),
             btnToggle: document.getElementById('btn-toggle'),
@@ -173,6 +258,7 @@
             errorMessage: document.getElementById('error-message'),
             toast: document.getElementById('toast'),
             toastMessage: document.getElementById('toast-message'),
+            toastIcon: document.getElementById('toast-icon'),
             headerIconBg: document.getElementById('header-icon-bg'),
             headerIconMic: document.getElementById('header-icon-mic'),
             headerIconMicOff: document.getElementById('header-icon-mic-off'),
@@ -186,17 +272,23 @@
 
         // 狀態變數
         let isListening = false;
-        let isStarted = false;
         let finalStr = '';
-        let interimStr = '';
-        let recognition = null;
         let toastTimeout = null;
 
-        // 音訊視覺化相關變數
+        // 音訊與 VAD (語音活動檢測) 變數
         let audioCtx = null;
         let analyser = null;
         let animationFrameId = null;
         let activeStream = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        
+        let isSpeaking = false;
+        let silenceTimer = null;
+        let maxDurationTimer = null;
+
+        // 用於將錄音格式轉為 WAV 的 Decode Context
+        let decodeAudioCtx = null;
 
         // --- UI 更新與輔助功能 ---
         function showError(msg) {
@@ -208,8 +300,19 @@
             }
         }
 
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             ui.toastMessage.textContent = msg;
+            if (type === 'success') {
+                ui.toastIcon.setAttribute('data-lucide', 'check');
+                ui.toastIcon.classList.remove('text-yellow-400');
+                ui.toastIcon.classList.add('text-green-400');
+            } else if (type === 'warning') {
+                ui.toastIcon.setAttribute('data-lucide', 'alert-triangle');
+                ui.toastIcon.classList.remove('text-green-400');
+                ui.toastIcon.classList.add('text-yellow-400');
+            }
+            lucide.createIcons();
+
             ui.toast.classList.remove('opacity-0', 'translate-y-4');
             ui.toast.classList.add('opacity-100', 'translate-y-0');
             
@@ -226,9 +329,8 @@
 
         function updateTranscriptUI() {
             ui.finalTranscript.textContent = finalStr;
-            ui.interimTranscript.textContent = interimStr;
             
-            if (!finalStr && !interimStr && !isListening) {
+            if (!finalStr && !isListening) {
                 ui.placeholderText.classList.remove('hidden');
             } else {
                 ui.placeholderText.classList.add('hidden');
@@ -247,7 +349,6 @@
                 ui.headerIconMicOff.classList.add('hidden');
             }
 
-            ui.languageSelect.disabled = isListening;
             ui.deviceSelect.disabled = isListening;
             
             if (isListening) ui.cursorAnim.classList.remove('hidden');
@@ -308,95 +409,169 @@
                 stream.getTracks().forEach(track => track.stop());
             } catch (err) {
                 console.log('無法獲取錄音裝置列表:', err);
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const audioInputs = devices.filter(d => d.kind === 'audioinput');
-                
-                ui.deviceList.innerHTML = '';
-                if (audioInputs.length > 0) {
-                    audioInputs.forEach((device, index) => {
-                        const option = document.createElement('option');
-                        option.value = device.deviceId;
-                        option.className = 'bg-gray-900';
-                        option.textContent = `未知音訊裝置 ${index + 1}`;
-                        ui.deviceList.appendChild(option);
-                    });
-                } else {
-                    ui.deviceList.innerHTML = '<option value="" class="bg-gray-900">無法獲取裝置權限</option>';
-                }
             }
         }
 
-        // --- 初始化語音辨識 ---
-        function initSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        // --- 將瀏覽器錄製的音訊檔轉為標準 WAV 格式 ---
+        async function convertToWav(blob) {
+            if (!decodeAudioCtx) {
+                decodeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const arrayBuffer = await blob.arrayBuffer();
+            const audioBuffer = await decodeAudioCtx.decodeAudioData(arrayBuffer);
             
-            if (!SpeechRecognition) {
-                showError('您的瀏覽器不支援語音辨識功能。建議使用最新版的 Google Chrome 或 Edge。');
-                ui.btnToggle.disabled = true;
-                ui.btnToggle.classList.add('opacity-50', 'cursor-not-allowed');
-                return;
+            const numOfChan = audioBuffer.numberOfChannels;
+            const length = audioBuffer.length * numOfChan * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+            let offset = 0;
+
+            function writeString(str) {
+                for (let i = 0; i < str.length; i++) {
+                    view.setUint8(offset + i, str.charCodeAt(i));
+                }
+                offset += str.length;
+            }
+            function writeUint32(data) {
+                view.setUint32(offset, data, true);
+                offset += 4;
+            }
+            function writeUint16(data) {
+                view.setUint16(offset, data, true);
+                offset += 2;
             }
 
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = ui.languageSelect.value;
-            
-            recognition.onstart = () => {
-                isStarted = true;
-                showError('');
-            };
+            writeString('RIFF');
+            writeUint32(length - 8);
+            writeString('WAVE');
+            writeString('fmt ');
+            writeUint32(16);
+            writeUint16(1); // PCM
+            writeUint16(numOfChan);
+            writeUint32(audioBuffer.sampleRate);
+            writeUint32(audioBuffer.sampleRate * 2 * numOfChan);
+            writeUint16(numOfChan * 2);
+            writeUint16(16);
+            writeString('data');
+            writeUint32(length - offset - 4);
 
-            recognition.onresult = (event) => {
-                let tempFinal = '';
-                let tempInterim = '';
-                
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        tempFinal += event.results[i][0].transcript;
+            for (let i = 0; i < audioBuffer.length; i++) {
+                for (let channel = 0; channel < numOfChan; channel++) {
+                    let sample = audioBuffer.getChannelData(channel)[i];
+                    sample = Math.max(-1, Math.min(1, sample));
+                    sample = sample < 0 ? sample * 32768 : sample * 32767;
+                    view.setInt16(offset, sample, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        // --- 發送至 Cantonese.ai 官方 API ---
+        async function transcribeAudio(blob) {
+            if (!isListening) return;
+
+            ui.interimTranscript.textContent = " (辨識中...)";
+
+            try {
+                // 將瀏覽器產生的 WebM 或 MP4 轉檔為官方支援的 WAV 格式
+                const wavBlob = await convertToWav(blob);
+
+                // 嚴格依照官方文件設定參數
+                const formData = new FormData();
+                formData.append('api_key', CANTONESE_API_KEY);
+                formData.append('data', wavBlob, 'audio.wav');
+                formData.append('with_timestamp', 'false');
+                formData.append('with_diarization', 'false');
+
+                // 使用 POST 加上 FormData 的簡單請求 (Simple Request)，避免觸發 OPTIONS CORS 預檢
+                const response = await fetch('https://cantonese.ai/api/stt', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    console.warn("STT API 錯誤狀態碼:", response.status);
+                    ui.interimTranscript.textContent = "";
+                    if (response.status === 415) {
+                        showToast("API 不支援目前的瀏覽器音訊格式。", "warning");
+                    } else if (response.status === 401) {
+                        showToast("API 授權驗證失敗。", "warning");
                     } else {
-                        tempInterim += event.results[i][0].transcript;
+                        showToast(`API 錯誤: HTTP ${response.status}`, "warning");
                     }
+                    return;
                 }
-                
-                if (tempFinal) {
-                    finalStr += tempFinal + '，';
-                }
-                interimStr = tempInterim;
-                updateTranscriptUI();
-            };
 
-            recognition.onerror = (event) => {
-                if (event.error === 'no-speech') return;
-                
-                console.log('Speech recognition error:', event.error);
-                
-                if (event.error === 'not-allowed') {
-                    showError('無法存取麥克風，請確認您的瀏覽器是否已允許麥克風權限。');
-                    turnOffListening();
-                } else if (event.error === 'network') {
-                    showError('網路連線異常，請檢查您的網路狀態。');
-                    turnOffListening();
-                }
-            };
+                const result = await response.json();
+                ui.interimTranscript.textContent = "";
 
-            recognition.onend = () => {
-                isStarted = false;
-                
-                if (isListening) {
-                    try {
-                        if (!isStarted) {
-                            recognition.start();
-                        }
-                    } catch (err) {
-                        console.log('Restart failed:', err);
-                        turnOffListening();
+                if (result.text && result.text.trim()) {
+                    let text = result.text.trim();
+                    const isConvertEnabled = ui.toggleHkTw.checked;
+                    
+                    if (isConvertEnabled) {
+                        text = convertHKTextToTW(text).text;
                     }
+                    
+                    finalStr += text + '，';
+                    updateTranscriptUI();
                 }
-            };
+            } catch(e) {
+                console.warn("連線受阻:", e);
+                ui.interimTranscript.textContent = "";
+                showToast("網路連線錯誤，請確認網路狀態。", "warning");
+                turnOffListening();
+            }
         }
 
-        // --- 音量視覺化 ---
+        // --- 智慧截斷 (VAD) 錄音邏輯 ---
+        function startRecordingChunk() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') return;
+            audioChunks = [];
+            
+            try {
+                let options = {};
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+                    options = { mimeType: 'audio/webm;codecs=opus' };
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    options = { mimeType: 'audio/mp4' };
+                }
+                
+                mediaRecorder = new MediaRecorder(activeStream, options);
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+                mediaRecorder.onstop = () => {
+                    const blobType = options.mimeType ? options.mimeType.split(';')[0] : 'audio/webm';
+                    const blob = new Blob(audioChunks, { type: blobType });
+                    if (blob.size > 1000 && isListening) {
+                        transcribeAudio(blob);
+                    }
+                };
+                mediaRecorder.start();
+
+                // 強制最多 8 秒截斷一次
+                maxDurationTimer = setTimeout(() => {
+                    stopRecordingChunk();
+                }, 8000);
+            } catch (e) {
+                console.warn("錄音器初始化失敗:", e);
+            }
+        }
+
+        function stopRecordingChunk() {
+            if (silenceTimer) clearTimeout(silenceTimer);
+            if (maxDurationTimer) clearTimeout(maxDurationTimer);
+            
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                try { mediaRecorder.stop(); } catch(e) {}
+            }
+            isSpeaking = false;
+        }
+
+        // --- 音量視覺化與 VAD 核心迴圈 ---
         async function startVisualizer() {
             try {
                 let stream;
@@ -404,10 +579,10 @@
 
                 if (deviceId === 'system_display') {
                     stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
-                    
                     if (stream.getAudioTracks().length === 0) {
-                        showToast('⚠️ 警告：您分享畫面時未勾選「分享音訊」！音量條將不會跳動。');
+                        showToast('⚠️ 警告：您分享畫面時未勾選「分享音訊」！', 'warning');
                         stream.getTracks().forEach(track => track.stop());
+                        turnOffListening();
                         return;
                     }
                 } else {
@@ -418,6 +593,7 @@
                 }
 
                 activeStream = stream;
+                
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioCtx.createAnalyser();
                 
@@ -430,14 +606,16 @@
                 const bufferLength = analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
 
-                function updateVolume() {
+                function processAudioFrame() {
                     if (!analyser) return;
                     analyser.getByteFrequencyData(dataArray);
+                    
                     let sum = 0;
                     for (let i = 0; i < bufferLength; i++) {
                         sum += dataArray[i];
                     }
                     const average = sum / bufferLength;
+                    
                     const volumePercent = Math.min(100, (average / 60) * 100);
 
                     if (ui.volumeBar) {
@@ -450,21 +628,29 @@
                             ui.volumeBar.className = "h-full bg-green-500 rounded-full transition-all duration-75 ease-out";
                         }
                     }
-                    animationFrameId = requestAnimationFrame(updateVolume);
+
+                    // --- VAD (語音活動偵測) 邏輯 ---
+                    if (isListening) {
+                        if (volumePercent > 6) { // 說話觸發閥值
+                            if (!isSpeaking) {
+                                isSpeaking = true;
+                                startRecordingChunk();
+                            }
+                            if (silenceTimer) clearTimeout(silenceTimer);
+                            silenceTimer = setTimeout(() => {
+                                stopRecordingChunk();
+                            }, 1200); 
+                        }
+                    }
+
+                    animationFrameId = requestAnimationFrame(processAudioFrame);
                 }
-                updateVolume();
+                processAudioFrame();
 
             } catch (err) {
-                console.log('音量測試啟動失敗:', err.message || err);
-                
-                if (ui.deviceSelect.value === 'system_display') {
-                    if (err.name === 'NotAllowedError' || (err.message && err.message.includes('policy'))) {
-                        showError('⚠️ 當前網頁環境（安全沙盒限制）無法開啟螢幕分享擷取。請改用下拉選單的「實體裝置」，並搭配系統的「立體聲混音」來偵測喇叭音量。');
-                    } else {
-                        showToast('已取消分享音訊或發生錯誤。');
-                    }
-                    turnOffListening();
-                }
+                console.log('麥克風存取失敗:', err.message || err);
+                showError('無法取得音訊串流，請確認瀏覽器權限或嘗試切換下拉選單裝置。');
+                turnOffListening();
             }
         }
 
@@ -487,33 +673,36 @@
         // --- 核心控制 ---
         function turnOffListening() {
             isListening = false;
-            if (recognition) {
-                try { recognition.stop(); } catch(e) {}
-            }
+            stopRecordingChunk();
             stopVisualizer();
-            interimStr = '';
+            ui.interimTranscript.textContent = "";
             updateListeningUI();
         }
 
         function toggleListening() {
-            if (!recognition) return;
-
             if (isListening) {
                 turnOffListening();
             } else {
                 showError('');
                 isListening = true;
-                
-                try {
-                    if (!isStarted) {
-                        recognition.start();
-                    }
-                    startVisualizer();
-                } catch (e) {
-                    console.log('Start error:', e);
-                }
                 updateListeningUI();
+                startVisualizer();
             }
+        }
+
+        // --- 港台用語轉換功能 ---
+        function convertHKTextToTW(text) {
+            if (!text) return { text: '', count: 0 };
+            let convertedText = text;
+            let count = 0;
+            for (const [hk, tw] of Object.entries(hkToTwMap)) {
+                const regex = new RegExp(hk, 'g');
+                if (convertedText.match(regex)) {
+                    count += convertedText.match(regex).length;
+                    convertedText = convertedText.replace(regex, tw);
+                }
+            }
+            return { text: convertedText, count };
         }
 
         // --- 事件綁定 ---
@@ -521,34 +710,34 @@
 
         ui.btnClear.addEventListener('click', () => {
             finalStr = '';
-            interimStr = '';
             updateTranscriptUI();
             showToast('文字已清除');
         });
 
         ui.btnCopy.addEventListener('click', () => {
-            const textToCopy = finalStr + interimStr;
-            if (!textToCopy) {
-                showToast('沒有可複製的文字');
+            if (!finalStr) {
+                showToast('沒有可複製的文字', 'warning');
                 return;
             }
 
             const textArea = document.createElement('textarea');
-            textArea.value = textToCopy;
+            textArea.value = finalStr;
             document.body.appendChild(textArea);
             textArea.select();
             try {
                 document.execCommand('copy');
                 showToast('已成功複製到剪貼簿！');
             } catch (err) {
-                showToast('複製失敗，請手動選取複製');
+                showToast('複製失敗，請手動選取複製', 'warning');
             }
             document.body.removeChild(textArea);
         });
 
-        ui.languageSelect.addEventListener('change', (e) => {
-            if (recognition) {
-                recognition.lang = e.target.value;
+        ui.toggleHkTw.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                showToast('已開啟港→台自動轉換功能');
+            } else {
+                showToast('已關閉轉換，保留原始用語');
             }
         });
 
@@ -559,7 +748,6 @@
 
         // 初始化執行
         getDevices();
-        initSpeechRecognition();
 
     </script>
 </body>
