@@ -58,7 +58,7 @@
         <i data-lucide="info" class="text-blue-400 shrink-0 mt-0.5 w-5 h-5"></i>
         <div class="text-blue-300 text-sm leading-relaxed flex-1">
             <p>1. 辨識永遠取自電腦系統的**預設麥克風**。</p>
-            <p>2. **字幕視窗已改為背景透明**。頂部網址列為瀏覽器安全機制，無法手動移除。</p>
+            <p>2. **透明字幕視窗**：累積滿 12 字會全數清空重新開始。網址列為瀏覽器安全設計，無法移除。</p>
         </div>
     </div>
 
@@ -95,9 +95,9 @@
                     <span id="btn-text">開始說話</span>
                 </button>
                 
-                <button id="btn-pip" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-300 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600 hover:text-white" title="開啟桌面透明字幕">
+                <button id="btn-pip" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-300 bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600 hover:text-white" title="開啟桌面透明置頂字幕">
                     <i data-lucide="monitor-up" class="w-5 h-5"></i>
-                    <span>透明字幕</span>
+                    <span>透明置頂字幕</span>
                 </button>
 
                 <!-- 音量條 -->
@@ -170,7 +170,7 @@
         let finalStr = '';
         let interimStr = '';
         
-        // --- 透明字幕視窗變數 ---
+        // --- 透明字幕視窗核心變數 ---
         let pipWindow = null; 
         let subtitleContainer = null;
         let pipBuffer = ""; 
@@ -244,8 +244,13 @@
 
                 if (tFinal) {
                     finalStr += tFinal + '，';
-                    pipBuffer += tFinal;
-                    if (pipBuffer.length >= 12) pipBuffer = tFinal; // 12 字清空
+                    // --- 12 字循環清空邏輯 (整批) ---
+                    // 如果原本緩衝區加上新字會超過 12，則先清空舊的，直接從新字開始
+                    if ((pipBuffer + tFinal).length > 12) {
+                        pipBuffer = tFinal;
+                    } else {
+                        pipBuffer += tFinal;
+                    }
                 }
                 interimStr = tInterim;
 
@@ -255,15 +260,19 @@
 
                 if (pipWindow && subtitleContainer) {
                     let display = pipBuffer + tInterim;
-                    if (display.length > 12) display = display.slice(-12);
+                    // 如果正在講的那句 interim 瞬間超長也得裁切，直到它變成 Final 進入下一頁
+                    if (display.length > 12) {
+                        display = display.slice(-12);
+                    }
                     subtitleContainer.textContent = display;
+
                     if (subtitleTimeout) clearTimeout(subtitleTimeout);
                     subtitleTimeout = setTimeout(() => { pipBuffer = ""; subtitleContainer.textContent = ""; }, 5000);
                 }
             };
             recognition.onend = () => {
                 isStarted = false;
-                if (isListening) recognition.start(); // 自動重啟以保持連續性
+                if (isListening) recognition.start();
             };
         }
 
@@ -303,32 +312,82 @@
 
         ui.btnPip.addEventListener('click', async () => {
             if (pipWindow) { pipWindow.close(); return; }
+            
+            // 背景強制設定為完全透明 rgba(0,0,0,0)
             const css = `
-                body { margin: 0; background: transparent; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; user-select: none; }
-                #subtitle { font-size: 38px; font-weight: bold; text-align: center; text-shadow: 0 0 8px #000, 0 0 15px #000; width: 100%; padding: 0 10px; white-space: nowrap; overflow: hidden; letter-spacing: 2px; }
-                html { background: transparent; }
+                html, body { 
+                    margin: 0; 
+                    padding: 0; 
+                    background-color: rgba(0,0,0,0) !important; 
+                    background: transparent !important;
+                    height: 100vh; 
+                    overflow: hidden; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center;
+                    user-select: none;
+                }
+                #subtitle { 
+                    font-size: 38px; 
+                    font-weight: 800; 
+                    color: #ffffff; 
+                    text-align: center; 
+                    width: 100%; 
+                    padding: 0 10px; 
+                    white-space: nowrap; 
+                    overflow: hidden; 
+                    font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif;
+                    letter-spacing: 2px;
+                    /* 強大的描邊與陰影，確保在全透明背景下能被看見 */
+                    -webkit-text-stroke: 1.5px #000000;
+                    text-shadow: 
+                        3px 3px 0 #000, 
+                        -1px -1px 0 #000,  
+                        1px -1px 0 #000,
+                        -1px 1px 0 #000,
+                        1px 1px 0 #000;
+                }
             `;
+
             if ('documentPictureInPicture' in window) {
                 try {
-                    pipWindow = await documentPictureInPicture.requestWindow({ width: 550, height: 75 });
+                    pipWindow = await documentPictureInPicture.requestWindow({ width: 550, height: 60 });
                     const style = pipWindow.document.createElement('style');
                     style.textContent = css;
                     pipWindow.document.head.appendChild(style);
+                    
+                    // 將視窗本體設為透明
+                    pipWindow.document.body.style.background = 'transparent';
+
                     subtitleContainer = pipWindow.document.createElement('div');
                     subtitleContainer.id = 'subtitle';
                     subtitleContainer.textContent = '等待語音...';
                     pipWindow.document.body.appendChild(subtitleContainer);
+                    
                     pipWindow.addEventListener('pagehide', () => { pipWindow = null; subtitleContainer = null; });
                     showToast('透明字幕視窗已開啟');
                 } catch (e) { showToast('開啟失敗'); }
             } else {
-                showToast('您的瀏覽器不支援置頂視窗 API');
+                showToast('瀏覽器不支援置頂視窗 API');
             }
         });
 
         ui.btnToggle.addEventListener('click', toggleListening);
-        document.getElementById('btn-clear').addEventListener('click', () => { finalStr = ''; interimStr = ''; pipBuffer = ""; ui.finalTranscript.textContent = ""; if(subtitleContainer) subtitleContainer.textContent = ""; ui.placeholderText.classList.remove('hidden'); });
-        document.getElementById('btn-copy').addEventListener('click', () => { const el = document.createElement('textarea'); el.value = finalStr + interimStr; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); showToast('已複製到剪貼簿'); });
+        document.getElementById('btn-clear').addEventListener('click', () => { 
+            finalStr = ''; interimStr = ''; pipBuffer = ""; 
+            ui.finalTranscript.textContent = ""; 
+            if(subtitleContainer) subtitleContainer.textContent = ""; 
+            ui.placeholderText.classList.remove('hidden'); 
+        });
+        document.getElementById('btn-copy').addEventListener('click', () => { 
+            const el = document.createElement('textarea'); 
+            el.value = finalStr + interimStr; 
+            document.body.appendChild(el); 
+            el.select(); 
+            document.execCommand('copy'); 
+            document.body.removeChild(el); 
+            showToast('已複製到剪貼簿'); 
+        });
 
         async function getDevices() {
             try {
